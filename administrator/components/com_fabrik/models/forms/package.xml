@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<form>
+	<name>Package Edit Form</name>
+	
+	<fieldset name="details">
+		
+		<field class="readonly" default="0" description="JGLOBAL_FIELD_ID_DESC" label="JGLOBAL_FIELD_ID_LABEL" name="id" readonly="true" required="true" type="text"/>
+			
+		<field description="COM_FABRIK_FIELD_PACKAGE_NAME_DESC" label="COM_FABRIK_FIELD_PACKAGE_NAME_LABEL" name="label" required="true" size="40" type="text"/>
+			
+		<field name="component_name" 
+			type="text"
+			required="true" 
+			size="40"
+			filter="word"
+			label="COM_FABRIK_FIELD_PACKAGE_COMPONENT_NAME_LABEL"
+			description="COM_FABRIK_FIELD_PACKAGE_COMPONENT_NAME_DESC" />
+			
+		<field description="COM_FABRIK_FIELD_PACKAGE_VERSION_DESC" label="COM_FABRIK_FIELD_PACKAGE_VERSION_LABEL" name="version" required="true" size="6" type="text"/>
+			
+	</fieldset>
+	
+	<fieldset name="publishing">
+	
+		<field class="btn-group" default="1" description="COM_FABRIK_FIELD_PACKAGE_PUBLISHED_DESC" label="JSTATUS" name="published" type="radio">
+				<option value="0">JNO</option>
+				<option value="1">JYES</option>
+		</field>
+		
+	</fieldset>
+	
+	<fields name="params">
+	
+		<fieldset name="more">
+		
+			<!-- <field name="jversion"
+				type="list"
+				required="true"
+				default="2.5"
+				label="COM_FABRIK_FIELD_PACKAGE_JVERSION_LABEL"
+				description="COM_FABRIK_FIELD_PACKAGE_JVERSION_DESC">
+					<option value="2.5">2.5</option>
+					<option value="3.0">3.0</option>	
+			</field> -->
+		
+		</fieldset>
+		<fieldset name="json">
+			
+			<field name="canvas"
+				type="Hiddenparams"
+				value=""/>
+				
+		</fieldset>
+	</fields>
+</form>
