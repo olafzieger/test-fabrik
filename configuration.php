@@ -12,9 +12,12 @@ class JConfig {
 	public $debug = '0';
 	public $debug_lang = '0';
 	public $dbtype = 'mysqli';
-	public $host = 'web.runze-casper.de';
-	public $user = 'olaf';
-	public $password = 'DRhMh24R.';
+// 	public $host = 'web.runze-casper.de';
+// 	public $user = 'olaf';
+// 	public $password = 'DRhMh24R.';
+	public $host = 'localhost';
+	public $user = 'root';
+	public $password = 'DTzGh21S.';
 	public $db = 'test';
 	public $dbprefix = 'test_';
 	public $live_site = '';
