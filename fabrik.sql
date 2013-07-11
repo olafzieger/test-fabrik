@@ -1,10 +1,10 @@
 -- phpMyAdmin SQL Dump
--- version 3.5.1
+-- version 3.5.7
 -- http://www.phpmyadmin.net
 --
--- Host: 127.0.0.1:3306
--- Erstellungszeit: 07. Jul 2013 um 12:44
--- Server Version: 5.5.29
+-- Host: localhost
+-- Erstellungszeit: 11. Jul 2013 um 10:36
+-- Server Version: 5.5.27
 -- PHP-Version: 5.3.15
 
 SET SQL_MODE="NO_AUTO_VALUE_ON_ZERO";
@@ -23,25 +23,87 @@ SET time_zone = "+00:00";
 -- --------------------------------------------------------
 
 --
--- Tabellenstruktur für Tabelle `test_fb_contact_sample`
+-- Tabellenstruktur für Tabelle `anmeldung_postdoktoranden`
 --
 
-CREATE TABLE IF NOT EXISTS `test_fb_contact_sample` (
+CREATE TABLE IF NOT EXISTS `anmeldung_postdoktoranden` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `first_name` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `last_name` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `email` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  `message` text CHARACTER SET latin1,
+  `date_time` datetime DEFAULT NULL,
+  `benutzer_name` varchar(255) DEFAULT NULL,
+  `vollstaendiger_name` varchar(255) DEFAULT NULL,
+  `passwort` varchar(255) DEFAULT NULL,
+  `email_adresse` varchar(255) DEFAULT NULL,
+  `geburtstag` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=3 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=2 ;
 
 --
--- Daten für Tabelle `test_fb_contact_sample`
+-- Daten für Tabelle `anmeldung_postdoktoranden`
 --
 
-INSERT INTO `test_fb_contact_sample` (`id`, `first_name`, `last_name`, `email`, `message`) VALUES
-(1, 'Olaf Zieger', 'Olaf Zieger', 'zieger@runze-casper.de', 'hallo wie geht es so?'),
-(2, '', '', '', '');
+INSERT INTO `anmeldung_postdoktoranden` (`id`, `date_time`, `benutzer_name`, `vollstaendiger_name`, `passwort`, `email_adresse`, `geburtstag`) VALUES
+(1, '2013-07-10 14:02:13', 'olafzieger72', 'Olaf Zieger', 'ef5d2f5db96ec2dfb5d8e6fb99044b2e:4ANIGquf6U2ghFnBxlbIKLLDVrUv61ap', 'ziegerolaf@googlemail.com', NULL);
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `test`
+--
+
+CREATE TABLE IF NOT EXISTS `test` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `date_time` datetime DEFAULT NULL,
+  `testeintrag_1` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `test_fabrik_notification`
+--
+
+CREATE TABLE IF NOT EXISTS `test_fabrik_notification` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reference` varchar(50) NOT NULL COMMENT 'tableid.formid.rowid reference',
+  `user_id` int(6) NOT NULL,
+  `reason` varchar(40) NOT NULL,
+  `message` text NOT NULL,
+  `label` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uniquereason` (`user_id`,`reason`(20),`reference`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `test_fabrik_notification_event`
+--
+
+CREATE TABLE IF NOT EXISTS `test_fabrik_notification_event` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `reference` varchar(50) NOT NULL COMMENT 'tableid.formid.rowid reference',
+  `event` varchar(255) NOT NULL,
+  `user_id` int(6) NOT NULL,
+  `date_time` datetime NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Tabellenstruktur für Tabelle `test_fabrik_notification_event_sent`
+--
+
+CREATE TABLE IF NOT EXISTS `test_fabrik_notification_event_sent` (
+  `id` int(6) NOT NULL AUTO_INCREMENT,
+  `notification_event_id` int(6) NOT NULL,
+  `user_id` int(6) NOT NULL,
+  `date_sent` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `sent` tinyint(1) NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_notified` (`notification_event_id`,`user_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
