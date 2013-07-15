@@ -435,6 +435,7 @@ class FabrikFEModelForm extends FabModelForm
 		$item = $this->getForm();
 		$tmpl = '';
 		$default = FabrikWorker::j3() ? 'bootstrap' : 'default';
+		$jTmplFolder = FabrikWorker::j3() ? 'tmpl' : 'tmpl25';
 		$document = JFactory::getDocument();
 		if ($document->getType() === 'pdf')
 		{
@@ -467,7 +468,7 @@ class FabrikFEModelForm extends FabModelForm
 
 		// Test it exists - otherwise revert to baseTmpl tmpl
 		$folder = $this->isEditable() ? 'form' : 'details';
-		if (!JFolder::exists(JPATH_SITE . '/components/com_fabrik/views/' . $folder . '/tmpl/' . $tmpl))
+		if (!JFolder::exists(JPATH_SITE . '/components/com_fabrik/views/' . $folder . '/' . $jTmplFolder . '/' . $tmpl))
 		{
 			$tmpl = $baseTmpl;
 		}
@@ -655,10 +656,6 @@ class FabrikFEModelForm extends FabModelForm
 			$query->select('*')->from('#__{package}_jsactions')->where('element_id IN (' . implode(',', $aElIds) . ')');
 			$db->setQuery($query);
 			$res = $db->loadObjectList();
-			if ($db->getErrorNum())
-			{
-				JError::raiseError(500, $db->getErrorMsg());
-			}
 		}
 		else
 		{
@@ -712,10 +709,6 @@ class FabrikFEModelForm extends FabModelForm
 			}
 			$db->setQuery($query);
 			$groups = $db->loadObjectList('group_id');
-			if ($db->getErrorNum())
-			{
-				JError::raiseError(500, $db->getErrorMsg());
-			}
 			$this->_publishedformGroups = $this->mergeGroupsWithJoins($groups);
 		}
 		return $this->_publishedformGroups;
@@ -856,10 +849,6 @@ class FabrikFEModelForm extends FabModelForm
 		}
 		$db->setQuery($query);
 		$groups = $db->loadObjectList();
-		if ($db->getErrorNum())
-		{
-			JError::raiseError(500, $db->getErrorMsg());
-		}
 		$this->elements = $groups;
 		return $groups;
 	}
@@ -1787,10 +1776,7 @@ class FabrikFEModelForm extends FabModelForm
 								 * their JSON data for encrypted read only vals, need to decode.
 								 */
 								$v = FabrikWorker::JSONtoData($v, true);
-								foreach ($v as &$tmpV)
-								{
-									$tmpV = $w->parseMessageForPlaceHolder($tmpV, $post);
-								}
+								$v = $w->parseMessageForPlaceHolder($v, $post);
 							}
 							$elementModel->setGroupModel($groupModel);
 							$elementModel->setValuesFromEncryt($post, $key, $v);
@@ -2875,8 +2861,7 @@ class FabrikFEModelForm extends FabModelForm
 								if (empty($usekey) && !$this->isMambot)
 								{
 									$this->rowId = 0;
-									JError::raiseNotice(500, JText::sprintf('COULD NOT FIND RECORD IN DATABASE', $this->rowId));
-									return;
+									throw new RuntimeException(JText::sprintf('COULD NOT FIND RECORD IN DATABASE', $this->rowId));
 								}
 								else
 								{
@@ -3675,11 +3660,6 @@ class FabrikFEModelForm extends FabModelForm
 			$form->label = $input->get('newFormLabel');
 		}
 		$res = $form->store();
-		if (!$res)
-		{
-			JError::raiseError(500, $form->getErrorMsg());
-			return false;
-		}
 		$newElements = array();
 		foreach ($groupModels as $groupModel)
 		{
@@ -3836,7 +3816,7 @@ class FabrikFEModelForm extends FabModelForm
 	public function getFormClass()
 	{
 		$params = $this->getParams();
-		$class = array('');
+		$class = array('fabrikForm');
 		$horiz = true;
 		$groups = $this->getGroupsHiarachy();
 		foreach ($groups as $gkey => $groupModel)
@@ -3887,7 +3867,7 @@ class FabrikFEModelForm extends FabModelForm
 			$page = 'index.php?';
 
 			// Get array of all querystring vars
-			$uri = JFactory::getURI();
+			$uri = JURI::getInstance();
 
 			/**
 			 * Was $router->parse($uri);
@@ -4283,10 +4263,6 @@ class FabrikFEModelForm extends FabModelForm
 				$db->setQuery($query);
 			}
 			$this->linkedFabrikLists[$table] = $db->loadColumn();
-			if ($db->getErrorNum())
-			{
-				JError::raiseError(500, $db->getErrorMsg());
-			}
 		}
 		return $this->linkedFabrikLists[$table];
 	}

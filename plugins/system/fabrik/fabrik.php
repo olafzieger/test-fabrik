@@ -55,6 +55,36 @@ class PlgSystemFabrik extends JPlugin
 	}
 
 	/**
+	 * Insert require.js config an app ini script into head.
+	 * Clears out js.config, js.scripts and js.shim from session
+	 *
+	 * @return  void
+	 */
+
+	public function onAfterRender()
+	{
+		$document = JFactory::getDocument();
+		$session = JFactory::getSession();
+		$shim = $session->get('fabrik.js.config', array());
+		$shim = implode("\n", $shim);
+		$js = $session->get('fabrik.js.scripts', array());
+		$js = implode("\n", $js);
+
+		// In preg_replace \\ is replaced with \, doubling up the quotes keeps \\ as \\.
+		$js = str_replace("\\", "\\\\", $js);
+
+		$script = '<script type="text/javascript">' . "\n" .  "\n" . $shim . "\n" . $js . "\n" . '</script>';
+
+		$session->clear('fabrik.js.scripts');
+		$session->clear('fabrik.js.config');
+		$session->clear('fabrik.js.shim');
+
+		$content = JResponse::getBody();
+		$content = preg_replace('#(</head>)#', $script, $content);
+		JResponse::setBody($content);
+	}
+
+	/**
 	 * Need to call this here otherwise you get class exists error
 	 *
 	 * @since   3.0
@@ -165,10 +195,6 @@ class PlgSystemFabrik extends JPlugin
 
 		$list = array();
 		$ids = $db->loadColumn();
-		if ($db->getErrorNum() != 0)
-		{
-			jexit('search:' . $db->getErrorMsg());
-		}
 		$section = $this->params->get('search_section_heading');
 		$urls = array();
 
@@ -203,7 +229,7 @@ class PlgSystemFabrik extends JPlugin
 				$diff = $usage[count($usage) - 1] - $usage[count($usage) - 2];
 				if ($diff + $usage[count($usage) - 1] > $memory - $memSafety)
 				{
-					JError::raiseNotice(500, 'Some records were not searched due to memory limitations');
+					$app->enqueueMessage('Some records were not searched due to memory limitations');
 					break;
 				}
 			}

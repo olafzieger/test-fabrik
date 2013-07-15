@@ -228,11 +228,18 @@ class FabrikFEModelGroup extends FabModel
 	/**
 	 * Can the user view the group
 	 *
+	 * @param   string  $mode  View mode list|form
+	 *
 	 * @return   bool
 	 */
 
-	public function canView()
+	public function canView($mode = 'form')
 	{
+		// No ACL option for list view.
+		if ($mode === 'list')
+		{
+			return true;
+		}
 		if (!is_null($this->canView))
 		{
 			return $this->canView;
@@ -327,10 +334,7 @@ class FabrikFEModelGroup extends FabModel
 			$query->select('form_id')->from('#__{package}_formgroup')->where('group_id = ' . (int) $this->getId());
 			$db->setQuery($query);
 			$this->formsIamIn = $db->loadColumn();
-			if (!$db->execute())
-			{
-				return JError::raiseError(500, $db->getErrorMsg());
-			}
+			$db->execute();
 		}
 		return $this->formsIamIn;
 	}
@@ -453,8 +457,8 @@ class FabrikFEModelGroup extends FabModel
 		}
 		else
 		{
-			$element->startRow = 0;
-			$element->endRow = 0;
+			$element->startRow = 1;
+			$element->endRow = 1;
 			$element->span = '';
 			$element->column .= ' style="clear:both;width:100%;"';
 		}
@@ -610,6 +614,7 @@ class FabrikFEModelGroup extends FabModel
 		{
 			$this->listQueryElements[$sig] = array();
 			$elements = $this->getMyElements();
+			$joins = $this->getListModel()->getJoins();
 			foreach ($elements as $elementModel)
 			{
 				$element = $elementModel->getElement();
@@ -629,6 +634,21 @@ class FabrikFEModelGroup extends FabModel
 					if ($input->get('view') == 'list' && !$elementModel->canView('list'))
 					{
 						continue;
+					}
+
+					/**
+					 * $$$ hugh - if the eleent is an FK in a list join, ignore the include_in_list setting,
+					 * and just incude it.  Technically we could check to see if any of the elements from the joined
+					 * list are being incuded before making this decision, but it's such a corner case, I vote for
+					 * just including list join FK's, period.
+					 */
+					foreach ($joins as $join)
+					{
+						if (!empty($join->list_id) && $element->id == $join->element_id)
+						{
+							$this->listQueryElements[$sig][] = $elementModel;
+							continue;
+						}
 					}
 
 					if (empty($showInList))
@@ -858,7 +878,7 @@ class FabrikFEModelGroup extends FabModel
 		$params = $this->getParams();
 		if (!isset($this->editable))
 		{
-			$this->editable =  $formModel->isEditable();
+			$this->editable = $formModel->isEditable();
 		}
 		if ($this->editable)
 		{
@@ -951,10 +971,7 @@ class FabrikFEModelGroup extends FabModel
 		$formGroup->form_id = $formid;
 		$formGroup->group_id = $group->id;
 		$formGroup->ordering = 999999;
-		if (!$formGroup->store())
-		{
-			JError::raiseError(500, $formGroup->getError());
-		}
+		$formGroup->store();
 		$formGroup->reorder(" form_id = '$formid'");
 		return $newElements;
 	}
@@ -1048,6 +1065,15 @@ class FabrikFEModelGroup extends FabModel
 		$canRepeat = $this->canRepeat();
 		$repeats = $this->repeatTotals();
 		$joinModel = $this->getJoinModel();
+		/*
+		 * $$$ hugh - test code for new isJoin in join model
+		 */
+		/*
+		if ($joinModel->isView())
+		{
+			return;
+		}
+		*/
 		$pkField = $joinModel->getPrimaryKey();
 
 		$listModel = $this->getListModel();
